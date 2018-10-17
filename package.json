@@ -1,6 +1,6 @@
 {
   "name": "shape-poly",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Make CSS Polygon Shape",
   "main": "dist/shapepoly.js",
   "module": "dist/shapepoly.esm.js",

@@ -102,16 +102,14 @@ function getFirstTransform(side: number, split: number, isVertical: boolean,
   const cos = Math.cos(starAngle * Math.PI / 180);
 
   const arr = [];
-  if (side >= 4) {
-    arr.push(`translate${translateProperty}(-${50 * cos * split}%)`);
-    if (split > 1) {
-      arr.push(`translate${translateProperty}(${strokeValue / 2 * (cos * split - 1)}${strokeUnit})`);
-    }
+  arr.push(`translate${translateProperty}(-${50 * cos * split}%)`);
+  if (split > 1) {
+    arr.push(`translate${translateProperty}(${strokeValue / 2 * (cos * split - 1)}${strokeUnit})`);
   }
   if (starAngle !== 0) {
     arr.push(`rotate(${starAngle}deg)`);
   }
-  return arr.length > 0 ? `transform:${arr.join(" ")};` : "";
+  return `transform:${arr.join(" ")};`;
 }
 export function dom(el: HTMLElement) {
   const strokeWidth = el.getAttribute("data-stroke-width") || undefined;
@@ -152,13 +150,12 @@ export function css({
   const width = isVertical ? sideWidth : strokeWidth;
   const height = isVertical ? strokeWidth : sideWidth;
   const externalAngle = 360 / side + 2 * starAngle;
-  const pos = side < 4 ? "0" : "50%";
   const transformSplit = getFirstTransform(side, splitCount, isVertical, sign * starAngle, strokeValue, strokeUnit);
   const sides = [];
 
   sides.push(`${reverseDirection}:0;
   ${otherDirectionProperty}:auto;
-  ${directionProperty}:${pos};${transformSplit}${getTransformOrigin(half, isVertical)}
+  ${directionProperty}:50%;${transformSplit}${getTransformOrigin(half, isVertical)}
   width:${width};height:${height};border-radius:${half};background:${stroke};`);
   for (let i = 0; i < side; ++i) {
     for (let j = 0; j < splitCount; ++j) {
