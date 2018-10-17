@@ -1,5 +1,7 @@
-import { BOTTOM, TOP, DIRECTION, SIDE_CLASS, POLY_CLASS,
-  POSITION_ABSOLUTE, REVERSE, LEFT, RIGHT, SIDE_CSS } from "./consts";
+import {
+  BOTTOM, TOP, DIRECTION, SIDE_CLASS, POLY_CLASS,
+  POSITION_ABSOLUTE, REVERSE, LEFT, RIGHT, SIDE_CSS
+} from "./consts";
 
 function splitUnit(text: string) {
   const matches = /^([^\d|e|\-|\+]*)((?:\d|\.|-|e-|e\+)+)(\S*)$/g.exec(text);
@@ -39,7 +41,7 @@ function getCos(side: number) {
 function getStarAngle(side: number, radius: number) {
   const cos = getCos(side);
 
-  return 100 * cos  <= radius ? 0 :
+  return 100 * cos <= radius ? 0 :
     Math.atan((cos - radius / 100) / Math.sin(Math.PI / side)) / Math.PI * 180;
 }
 function getSideSize(side: number, split: number,
@@ -128,6 +130,72 @@ interface PolyInterface {
   direction?: DIRECTION;
   stroke?: string;
 }
+export function css({
+  strokeWidth = 0,
+  side = 3,
+  split = 1,
+  starRadius = 100,
+  stroke = "black",
+  direction = BOTTOM,
+}: PolyInterface) {
+  const splitCount = split * (starRadius === 100 ? 1 : 2);
+  const { unit: strokeUnit, value: strokeValue } = splitUnit(`${strokeWidth}`);
+  const half = `${strokeValue / 2}${strokeUnit}`;
+  const reverseDirection = REVERSE[direction];
+  const isVertical = direction === TOP || direction === BOTTOM;
+  const directionProperty = isVertical ? LEFT : TOP;
+  const otherDirectionProperty = isVertical ? TOP : LEFT;
+  const padding = getHeight(side, strokeWidth, isVertical);
+  const sign = direction === TOP || direction === RIGHT ? -1 : 1;
+  const starAngle = starRadius === 100 ? 0 : getStarAngle(side, starRadius);
+  const sideWidth = getSideSize(side, splitCount, starAngle, strokeWidth);
+  const width = isVertical ? sideWidth : strokeWidth;
+  const height = isVertical ? strokeWidth : sideWidth;
+  const externalAngle = 360 / side + 2 * starAngle;
+  const pos = side < 4 ? "0" : "50%";
+  const transformSplit = getFirstTransform(side, splitCount, isVertical, sign * starAngle, strokeValue, strokeUnit);
+  const sides = [];
+
+  sides.push(`${reverseDirection}:0;
+  ${otherDirectionProperty}:auto;
+  ${directionProperty}:${pos};${transformSplit}${getTransformOrigin(half, isVertical)}
+  width:${width};height:${height};border-radius:${half};background:${stroke};`);
+  for (let i = 0; i < side; ++i) {
+    for (let j = 0; j < splitCount; ++j) {
+      const no = i * splitCount + j;
+
+      if (no === 0) {
+        continue;
+      }
+      const transform = j === 0 ? `transform:rotate(${sign * externalAngle}deg)` :
+        (starAngle && j === splitCount / 2 ? `transform:rotate(${-sign * 2 * starAngle}deg)` : "transform:none;");
+
+      sides.push(`${otherDirectionProperty}:auto;${directionProperty}: calc(100% - ${strokeWidth});${transform}`);
+    }
+  }
+  return { sides, percent: `padding-top:${padding}` };
+}
+export function be(el: HTMLElement, {
+  strokeWidth = 0,
+  side = 3,
+  starRadius = 100,
+  stroke = "black",
+  direction = BOTTOM,
+}: PolyInterface) {
+  const sideElements = el.querySelectorAll(`.${SIDE_CLASS}`);
+  const length = sideElements.length;
+  const split = length / (side * (starRadius !== 100 ? 2 : 1));
+  if (!length || split % 1) {
+    return;
+  }
+  const percentElement = el.querySelector(`.${SIDE_CLASS}-percent`);
+  const {sides, percent} = css({strokeWidth, side, split, starRadius, stroke, direction});
+
+  sides.forEach((sideCSS, i) => {
+    (sideElements[i] as any).style.cssText += sideCSS;
+  });
+  (percentElement as any).style.cssText += percent;
+}
 export function poly({
   className = POLY_CLASS,
   strokeWidth = 0,
@@ -138,60 +206,22 @@ export function poly({
   direction = BOTTOM,
   container = makeDOM("div", className),
 }: PolyInterface) {
-  const splitCount = split * (starRadius === 100 ? 1 : 2);
-  const {unit: strokeUnit, value: strokeValue} = splitUnit(`${strokeWidth}`);
-  const half = `${strokeValue / 2}${strokeUnit}`;
-  const reverseDirection = REVERSE[direction];
-  const isVertical = direction === TOP || direction === BOTTOM;
-  const directionProperty = isVertical ? LEFT : TOP;
-  const padding = getHeight(side, strokeWidth, isVertical);
-  const sign = direction === TOP || direction === RIGHT ? -1 : 1;
-  const starAngle = starRadius === 100 ? 0 : getStarAngle(side, starRadius);
-  const sideWidth = getSideSize(side, splitCount, starAngle, strokeWidth);
-  const width = isVertical ? sideWidth : strokeWidth;
-  const height = isVertical ? strokeWidth : sideWidth;
-  const externalAngle = 360 / side + 2 * starAngle;
+  const {sides, percent} = css({strokeWidth, side, split, starRadius, stroke, direction});
   let html;
 
-  for (let i = side - 1; i >= 0; --i) {
-    for (let j = splitCount - 1; j >= 0; --j) {
-      const no = i * splitCount + j;
-
-      if (no === 0) {
-        continue;
-      }
-      const transform = j === 0 ? `transform:rotate(${sign * externalAngle}deg)` :
-        (starAngle && j === splitCount / 2 ? `transform:rotate(${-sign * 2 * starAngle}deg)` : "");
-
-      html = getHTML(no, SIDE_CSS + `${directionProperty}:100%;
-      margin-${directionProperty}:-${strokeWidth};${transform}`, html);
-    }
+  for (let i = sides.length - 1; i >= 1; --i) {
+    html = getHTML(` ${SIDE_CLASS}${i}`, SIDE_CSS + sides[i], html);
   }
+  html = getHTML(` ${SIDE_CLASS}0`, `${POSITION_ABSOLUTE}display:inline-block;${sides[0]}`, html);
 
-  const pos = side < 4 ? "0" : "50%";
-  const transformSplit = getFirstTransform(side, splitCount, isVertical, sign * starAngle, strokeValue, strokeUnit);
-  const sideHTML = getHTML(0, `${POSITION_ABSOLUTE}${reverseDirection}: 0;
-  ${directionProperty}:${pos};${transformSplit}${getTransformOrigin(half, isVertical)}
-  display:inline-block;width:${width};height:${height};border-radius:${half};
-  background:${stroke};`, html);
-
-  const percentHTML = getHTML("percent", `position:relative;width:100%;padding-top:${padding}`);
+  const percentHTML = getHTML("-percent", `position:relative;width:100%;${percent}`);
 
   if (getComputedStyle(container).position === "static") {
     container.style.position = "relative";
   }
-  container.insertAdjacentHTML("beforeend", sideHTML + percentHTML);
+  container.insertAdjacentHTML("beforeend", html + percentHTML);
 
   return container;
 }
-export function be(container: HTMLElement, {
-  strokeWidth = 0,
-  side = 3,
-  split = 1,
-  starRadius = 100,
-  stroke = "black",
-  direction = BOTTOM,
-}: PolyInterface) {
 
-}
 export const VERSION = "#__VERSION__#";

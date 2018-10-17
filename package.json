@@ -11,7 +11,10 @@
     "css",
     "triangle",
     "js",
-    "tri"
+    "tri",
+    "poly",
+    "polygon",
+    "star"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
