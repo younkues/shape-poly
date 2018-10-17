@@ -1,3 +1,3 @@
-import * as ShapeTri from "./index";
+import * as ShapePoly from "./index";
 
-export default ShapeTri;
+export default ShapePoly;

@@ -1,6 +1,6 @@
 {
   "name": "shape-poly",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Make CSS Polygon Shape",
   "main": "dist/shapepoly.js",
   "module": "dist/shapepoly.esm.js",
@@ -29,21 +29,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/daybrush/shape-tri"
+    "url": "https://github.com/daybrush/shape-poly"
   },
   "author": "Daybrush",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/daybrush/shape-tri/issues"
+    "url": "https://github.com/daybrush/shape-poly/issues"
   },
-  "homepage": "https://github.com/daybrush/shape-tri#readme",
+  "homepage": "https://github.com/daybrush/shape-poly#readme",
   "devDependencies": {
     "gh-pages": "^2.0.1",
     "rollup-plugin-prototype-minify": "^1.0.4",
     "rollup-plugin-replace": "^2.1.0",
-    "string-replace": "^0.2.0"
-  },
-  "dependencies": {
+    "string-replace": "^0.2.0",
     "rollup": "^0.66.6",
     "rollup-plugin-typescript": "^1.0.0",
     "rollup-plugin-uglify": "^6.0.0",
