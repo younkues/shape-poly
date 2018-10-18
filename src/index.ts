@@ -111,15 +111,30 @@ function getFirstTransform(side: number, split: number, isVertical: boolean,
   }
   return `transform:${arr.join(" ")};`;
 }
-export function dom(el: HTMLElement) {
-  const strokeWidth = el.getAttribute("data-stroke-width") || undefined;
-  const stroke = el.getAttribute("data-stroke") || undefined;
-  const direction = (el.getAttribute("data-direction") as DIRECTION) || undefined;
 
-  return poly({ strokeWidth, stroke, direction, container: el });
+function getAttribute(el: HTMLElement, name: string) {
+  return el.getAttribute(`data-${name}`) || undefined;
+}
+export function dom(el: HTMLElement) {
+  const strokeWidth = getAttribute(el, "stroke-width");
+  const stroke = getAttribute(el, "stroke");
+  const direction = getAttribute(el, "direction") as DIRECTION;
+  let side: string | number = getAttribute(el, "side");
+  let split: string | number = getAttribute(el, "split");
+  let starRadius: string | number = getAttribute(el, "star-radius");
+
+  side && (side = parseFloat(side));
+  split && (split = parseFloat(split));
+  starRadius && (starRadius = parseFloat(starRadius));
+
+  return poly({
+    side: (side as number),
+    split: (split as number),
+    starRadius: (starRadius as number),
+    strokeWidth, direction, stroke, container: el});
 }
 interface PolyInterface {
-  side?: number;
+  side?: number ;
   split?: number;
   strokeWidth: number | string;
   className?: string;
