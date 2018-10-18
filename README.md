@@ -12,7 +12,7 @@ $ npm install shape-poly
 
 ## Options
 ```ts
-import {poly, be, dom} from "shape-tri";
+import {poly, be, dom} from "shape-poly";
 
 interface PolyInterface {
   side?: number;
@@ -34,7 +34,7 @@ function be(el: HTMLElement, options: PolyInterface);
 ## How to Use
 
 ```html
-<script src="//daybrush.github.io/shape-tri/release/latest/shapepoly.min.js"></script>
+<script src="//daybrush.github.io/shape-poly/release/latest/shapepoly.min.js"></script>
 ```
 ```html
 <div class="triangle" data-side="5" data-stroke-width="11px" style="width: 100px"></div>

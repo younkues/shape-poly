@@ -191,7 +191,7 @@ export function be(el: HTMLElement, {
   strokeWidth = 0,
   side = 3,
   starRadius = 100,
-  stroke = "black",
+  stroke,
   direction = BOTTOM,
 }: PolyInterface) {
   const sideElements = el.querySelectorAll(`.${SIDE_CLASS}`);
@@ -200,8 +200,11 @@ export function be(el: HTMLElement, {
   if (!length || split % 1) {
     return;
   }
+  const style = getComputedStyle(sideElements[0]);
+  const elStrokeWidth = strokeWidth || (direction === TOP || direction === BOTTOM) ? style.height : style.width;
+  const elStroke = stroke || style.backgroundColor;
   const percentElement = el.querySelector(`.${SIDE_CLASS}-percent`);
-  const {sides, percent} = css({strokeWidth, side, split, starRadius, stroke, direction});
+  const {sides, percent} = css({strokeWidth: elStrokeWidth, side, split, starRadius, stroke: elStroke, direction});
 
   sides.forEach((sideCSS, i) => {
     (sideElements[i] as any).style.cssText += sideCSS;
