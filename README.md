@@ -4,6 +4,8 @@
 
 Make CSS Polygon Shape
 
+* [Polygons & Stars Demo](https://codepen.io/daybrush/pen/qJoagW)
+
 ```sh
 $ npm install shape-poly
 ```
