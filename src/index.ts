@@ -213,7 +213,9 @@ export function poly({
 
   const percentHTML = getHTML("-percent", `position:relative;width:100%;${percent}`);
 
-  if (getComputedStyle(container).position === "static") {
+  const position = getComputedStyle(container).position;
+
+  if (!position || position === "static") {
     container.style.position = "relative";
   }
   container.insertAdjacentHTML("beforeend", html + percentHTML);
